@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+
+# Decompiled Nothing X sources. Derivative of Nothing's proprietary app, so
+# they must not be redistributed. What we learned from them — command ids,
+# payload formats, framing — is recorded in constants.py and FINDINGS.md,
+# which are our own work and stay in the repo.
+# Re-create with: unzip the APK, then jadx --single-class <Class> base.apk
+decompiled/
+
+# Local captures
+*.png
