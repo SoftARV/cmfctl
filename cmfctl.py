@@ -12,7 +12,6 @@
     ./cmfctl.py listen              # stream notifications until Ctrl-C
     ./cmfctl.py probe               # scan RFCOMM channels
     ./cmfctl.py codec               # active A2DP codec + whether LDAC is offered
-    ./cmfctl.py reconnect           # re-link, then report codecs
 
 Talks the Nothing protocol over Bluetooth Classic RFCOMM. See FINDINGS.md.
 """
@@ -340,17 +339,6 @@ def cmd_codec(_, args):
         print("  reflects the device-side toggle being off — try './cmfctl.py ldac on'.")
 
 
-def cmd_reconnect(_, args):
-    """A2DP capabilities are only re-read on a fresh link."""
-    mac = args.mac or find_device()
-    print("disconnecting...")
-    subprocess.run(["bluetoothctl", "disconnect", mac], capture_output=True, text=True)
-    time.sleep(3)
-    print("connecting...")
-    subprocess.run(["bluetoothctl", "connect", mac], capture_output=True, text=True)
-    time.sleep(5)
-    cmd_codec(None, args)
-
 
 def cmd_probe(_, args):
     mac = args.mac or find_device()
@@ -381,15 +369,12 @@ def main():
     sub.add_parser("listen")
     sub.add_parser("probe")
     sub.add_parser("codec")
-    sub.add_parser("reconnect")
     args = ap.parse_args()
 
     if args.cmd == "probe":
         return cmd_probe(None, args)
     if args.cmd == "codec":
         return cmd_codec(None, args)
-    if args.cmd == "reconnect":
-        return cmd_reconnect(None, args)
 
     mac = args.mac or find_device()
     link = Link(mac)
