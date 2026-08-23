@@ -117,6 +117,22 @@ def cmd_battery(link, _):
     print(f"{pct}%")
 
 
+ANC_LEVELS = (0x01, 0x02, 0x03, 0x04)
+
+
+def anc_fields(payload):
+    """Decode the ANC payload's 3-byte (type, value, unused) records.
+
+    Type 1 is the current mode, type 2 the level to restore when ANC is
+    switched back on -- DeviceNoiseReduction's NOISE_REDUCTION_MODE and
+    NOISE_REDUCTION_LEVEL.
+    """
+    out = {}
+    for i in range(0, len(payload) - 2, 3):
+        out[payload[i]] = payload[i + 1]
+    return out
+
+
 def cmd_anc(link, args):
     if not args.mode:
         if link.wait_for(lambda: link.anc is not None, timeout=5):
@@ -124,17 +140,40 @@ def cmd_anc(link, args):
         else:
             sys.exit("no ANC state reported; try toggling the button once")
         return
-    want = MODE_BY_NAME.get(args.mode.lower())
+    name = args.mode.lower()
+    want = MODE_BY_NAME.get(name)
     if want is None:
         sys.exit(f"unknown mode {args.mode!r}; use: "
                  "high | mid | low | adaptive | off | transparency")
-    # Coming out of "off", the first request only wakes ANC back up: the device
-    # restores its stored last-used level (DeviceNoiseReduction keeps it as
-    # field 2) and ignores the level we asked for. A second request then lands.
-    # Harmless when ANC is already on, where the first attempt succeeds.
-    for _ in range(2):
+
+    # "anc" / "on" mean "resume noise cancelling", not "resume at high". The
+    # phone app returns to whatever level was last used, and the headphones
+    # already remember it in field 2 -- so ask them rather than imposing a
+    # level. Naming a level explicitly still means that level.
+    if name in ("anc", "on"):
+        current = _query(link, _C["GET_CURRENT_NOISE_REDUCTION"])
+        if current:
+            last = anc_fields(current).get(0x02)
+            if last in ANC_LEVELS:
+                want = last
+
+    # Coming out of "off" the device restores its stored level and ignores the
+    # one requested, so a specific level needs a second attempt. Only retry when
+    # the level actually matters: retrying a resume would override the very
+    # level we just asked the device to restore.
+    attempts = 1 if name in ("anc", "on") else 2
+    for attempt in range(attempts):
+        if attempt:
+            # Back-to-back requests are ignored; the device needs a moment
+            # between the wake-up and the level that follows it.
+            time.sleep(0.5)
+        before = link.anc
         link.send(CMD_SET_ANC, bytes([0x01, want, 0x00]))
-        if link.wait_for(lambda: link.anc == want, timeout=5):
+        # Wait for the device to say anything about ANC, not only for the value
+        # asked for: when it answers with a restored level instead, reacting to
+        # that immediately turns a 5s timeout into a second request right away.
+        link.wait_for(lambda: link.anc == want or link.anc != before, timeout=5)
+        if link.anc == want:
             print(mode_name(link.anc))
             return
     sys.exit(f"device did not confirm the change (still {mode_name(link.anc)})")

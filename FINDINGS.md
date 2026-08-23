@@ -121,9 +121,29 @@ wakes ANC at its stored last-used level (field `02`) and reports that instead:
     from off:  set 1 -> device reports 4      (whatever was last used)
     from mid:  set 1 -> device reports 1      (works)
 
-A second identical request then lands, which is what `cmfctl anc` does — it
-retries once. Harmless when ANC is already on, where the first attempt
-succeeds. The app models the same state as `getLastNoiseReductionLevel()`.
+A second identical request then lands. Two details matter when acting on this:
+
+- **Back-to-back requests are ignored.** The retry needs roughly half a second
+  after the wake-up before the level is accepted.
+- **Do not wait out a timeout.** The device answers promptly with the restored
+  level, so waiting for the requested value to appear wastes the full timeout.
+  Waiting for *any* ANC notification and re-checking turns a 5s round trip into
+  well under one.
+
+`cmfctl anc <level>` does both, so every level lands in ~0.7s from any state.
+
+#### Resuming should not mean "high"
+
+The stored level is also what "turn ANC back on" is supposed to honour: set
+`low`, switch to transparency to talk, come back, and the app returns to `low`.
+Imposing mode 1 instead makes every resume jump to high.
+
+`cmfctl anc anc` (and `anc on`) therefore reads field 2 first and targets that
+level, rather than the `0x01` its alias would otherwise resolve to. A resume
+also deliberately does **not** retry — retrying would override the very level
+the device just restored, which is exactly the bug that behaviour caused.
+
+Naming a level explicitly still means that level.
 
 ## Host -> device commands
 

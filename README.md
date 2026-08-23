@@ -24,6 +24,12 @@ transparency
 $ ./cmfctl.py anc mid
 mid
 
+$ ./cmfctl.py anc transparency   # talk to someone
+transparency
+
+$ ./cmfctl.py anc anc            # back to mid, not high
+mid
+
 $ ./cmfctl.py anc off
 off
 
