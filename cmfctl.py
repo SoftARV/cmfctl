@@ -49,6 +49,7 @@ class Link:
     """RFCOMM link with a background reader, so notifications aren't missed."""
 
     def __init__(self, mac, channel=CHANNEL):
+        self.mac = mac
         self.sock = proto.connect(mac, channel, timeout=None)
         self.events = queue.Queue()
         self.anc = None
@@ -227,10 +228,18 @@ def cmd_status(link, args):
     anc = _query(link, _C["GET_CURRENT_NOISE_REDUCTION"])
     ldac = _query(link, CMD_GET_LHDC)
 
+    # The negotiated codec is not the same thing as the LDAC flag: the flag says
+    # the headphones will *offer* LDAC, while the codec is what host and device
+    # actually agreed on. Reading it costs no Bluetooth -- it comes from
+    # PipeWire -- so report both and let callers show the truth.
+    codec, offered, _profile = a2dp_state(link.mac)
+
     state = {
         "battery": read_battery(link),
         "anc": mode_name(anc[1]) if anc and len(anc) > 1 else None,
         "ldac": bool(ldac[-1]) if ldac else None,
+        "codec": codec,
+        "codecs": offered or None,
     }
     if args.json:
         import json
