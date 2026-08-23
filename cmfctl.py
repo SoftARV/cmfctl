@@ -3,7 +3,7 @@
 
     ./cmfctl.py battery
     ./cmfctl.py anc                 # read current mode
-    ./cmfctl.py anc transparency    # set: anc | off | transparency
+    ./cmfctl.py anc high            # high | mid | low | adaptive | off | transparency
     ./cmfctl.py get  <COMMAND_NAME>         # any Query command, read-only
     ./cmfctl.py set  <COMMAND_NAME> <hex>   # any Set command
     ./cmfctl.py status [--json]     # everything, over one connection
@@ -38,7 +38,13 @@ CMD_SET_LHDC = _C["SET_LHDC_COMMANDS"]        # kept: `set SET_LHDC_COMMANDS 01`
 CMD_GET_LHDC = _C["GET_LHDC_COMMANDS"]
 NOTIFY_ANC = 0xE003           # EVENT_NOISE_REDUCTION_LEVEL_CHANGED
 NOTIFY_BATTERY = 0xE001       # EVENT_BATTERY_CHANGED
-MODE_BY_NAME = {"anc": 0x01, "on": 0x01, "off": 0x05, "transparency": 0x07}
+MODE_BY_NAME = {
+    "high": 0x01, "mid": 0x02, "low": 0x03, "adaptive": 0x04,
+    "off": 0x05, "transparency": 0x07,
+    # aliases
+    "anc": 0x01, "on": 0x01, "medium": 0x02, "weak": 0x03, "strong": 0x01,
+    "smart": 0x04, "transparent": 0x07, "passthrough": 0x07,
+}
 
 
 find_device = proto.find_device
@@ -120,12 +126,18 @@ def cmd_anc(link, args):
         return
     want = MODE_BY_NAME.get(args.mode.lower())
     if want is None:
-        sys.exit(f"unknown mode {args.mode!r}; use: anc | off | transparency")
-    link.send(CMD_SET_ANC, bytes([0x01, want, 0x00]))
-    if link.wait_for(lambda: link.anc == want, timeout=5):
-        print(mode_name(link.anc))
-    else:
-        sys.exit(f"device did not confirm the change (still {mode_name(link.anc)})")
+        sys.exit(f"unknown mode {args.mode!r}; use: "
+                 "high | mid | low | adaptive | off | transparency")
+    # Coming out of "off", the first request only wakes ANC back up: the device
+    # restores its stored last-used level (DeviceNoiseReduction keeps it as
+    # field 2) and ignores the level we asked for. A second request then lands.
+    # Harmless when ANC is already on, where the first attempt succeeds.
+    for _ in range(2):
+        link.send(CMD_SET_ANC, bytes([0x01, want, 0x00]))
+        if link.wait_for(lambda: link.anc == want, timeout=5):
+            print(mode_name(link.anc))
+            return
+    sys.exit(f"device did not confirm the change (still {mode_name(link.anc)})")
 
 
 

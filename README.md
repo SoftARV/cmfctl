@@ -21,6 +21,9 @@ anc
 $ ./cmfctl.py anc transparency
 transparency
 
+$ ./cmfctl.py anc mid
+mid
+
 $ ./cmfctl.py anc off
 off
 
@@ -68,7 +71,8 @@ to `cmfctl`, so `~/.local/bin/cmfctl` must stay on PATH.
 
 ## Status
 
-Working: battery, ANC read/set, LDAC status, feature discovery, codec
+Working: battery, ANC read/set across all six modes (high, mid, low,
+adaptive, off, transparency), LDAC status, feature discovery, codec
 reporting, plus generic `get`/`set` for every known command.
 
 **Shelved pending more work:** the `ldac`, `spatial` and `eq` subcommands were

@@ -27,7 +27,17 @@ CRC_LEN = 2
 
 # The command id is LITTLE-endian on the wire. Names come from Nothing X's own
 # ProtocolConstant table -- see constants.py.
-ANC_MODES = {0x01: "anc", 0x05: "off", 0x07: "transparency"}
+# DeviceNoiseReduction (com.nothing.earbase.anc.entity) names these
+# MODE_NOISE_REDUCTION_STRONG / MEDIUM / WEAK / SMART_1 / CLOSE / PASS_THROUGH.
+# 6 (COMFORTABLE) and 8 (SMART_2) exist in the app but this model rejects them.
+ANC_MODES = {
+    0x01: "high",
+    0x02: "mid",
+    0x03: "low",
+    0x04: "adaptive",
+    0x05: "off",
+    0x07: "transparency",
+}
 COMMANDS = dict(constants.ALL)
 
 

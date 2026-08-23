@@ -84,18 +84,46 @@ and against the CRC-bearing frames this device emits.
 BlueZ independently reported `Battery Percentage: 0x37 (55)` at the same moment.
 Third payload byte is the battery percentage.
 
-### ANC — confirmed by correlation
+### ANC — full mode set
 
-`0x03E0` fires each time the ANC mode changes. The mode byte matches the
-published Ear-line values exactly:
+`0xE003` fires each time the mode changes. The payload is a list of 3-byte
+`(type, value, 0)` records, per `DeviceNoiseReduction` in the app:
 
-| byte | mode |
-|------|------|
-| `0x01` | ANC on |
-| `0x05` | off |
-| `0x07` | transparency |
+    01 <mode> 00   02 <last_level> 00
+    │                │
+    │                └ NOISE_REDUCTION_LEVEL: the level to restore when ANC
+    │                  is switched back on
+    └ NOISE_REDUCTION_MODE
 
-Capture correlates with cycling the button: `07` → `05` → `01` → `05`.
+Modes, named after the app's own constants. All verified against hardware:
+
+| value | app constant | UI label |
+|-------|--------------|----------|
+| `1` | `MODE_NOISE_REDUCTION_STRONG` | ANC high |
+| `2` | `MODE_NOISE_REDUCTION_MEDIUM` | ANC mid |
+| `3` | `MODE_NOISE_REDUCTION_WEAK` | ANC low |
+| `4` | `MODE_NOISE_REDUCTION_SMART_1` | ANC adaptive |
+| `5` | `MODE_NOISE_REDUCTION_CLOSE` | off |
+| `7` | `MODE_PASS_THROUGH` | transparency |
+
+`6` (`MODE_NOISE_COMFORTABLE`) and `8` (`MODE_NOISE_REDUCTION_SMART_2`) are
+defined in the app but this model **rejects them silently** — the write is
+acked and no notification follows.
+
+Set with `0xF00F`, payload `01 <mode> 00`. The query (`0xC01E`) takes a payload
+of `03` in the app, but this device answers identically to an empty one.
+
+### Leaving "off" ignores the requested level
+
+Switching from `off` to any level does **not** apply that level. The device
+wakes ANC at its stored last-used level (field `02`) and reports that instead:
+
+    from off:  set 1 -> device reports 4      (whatever was last used)
+    from mid:  set 1 -> device reports 1      (works)
+
+A second identical request then lands, which is what `cmfctl anc` does — it
+retries once. Harmless when ANC is already on, where the first attempt
+succeeds. The app models the same state as `getLastNoiseReductionLevel()`.
 
 ## Host -> device commands
 
