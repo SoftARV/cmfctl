@@ -125,12 +125,30 @@ strings against the same command):
 From `TWSDeviceExtKt.lhdc(TWSDevice, Boolean)` in the app, confirmed against
 hardware in both directions.
 
-**LDAC is off from the factory.** A2DP capabilities are exchanged when the link
-is established, so after toggling you must reconnect before the host sees LDAC.
-Verified end to end: toggle on, reconnect, and PipeWire reports
+**LDAC is off from the factory.**
 
-    active codec   : ldac
-    a2dp offered   : SBC, SBC-XQ, AAC, LDAC
+**Writing this command power-cycles the headphones.** They announce power-off,
+restart, and re-pair on their own — audible, and visible on the host as a
+~6-9 second disconnect. Nothing needs to be done about it: A2DP capabilities
+are exchanged when the link is established, so the restart *is* the
+re-negotiation, and the new codec set is live as soon as the device is back.
+
+Measured, touching nothing after the write:
+
+    t=3s   connected=yes  codec=ldac
+    t=6s   connected=no   codec=          <- device restarting
+    t=9s   connected=yes  codec=aac       <- back, re-negotiated by itself
+
+and symmetrically ~9s to come back on LDAC when enabling it.
+
+Do **not** disconnect or cycle the A2DP profile to "apply" the change. That was
+an early misreading: an A2DP teardown on its own (`pactl set-card-profile off`,
+or switching to HFP) leaves the device connected and is harmless, and every
+disconnect observed during testing was the write's own restart. Forcing a
+reconnect on top only leaves the card stranded on a dead profile.
+
+This also makes the flag a set-once affair rather than something to toggle
+casually, which is why the bar widget only reports LDAC status.
 
 ### Command ranges
 

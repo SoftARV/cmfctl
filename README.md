@@ -76,7 +76,7 @@ removed. Their command ids and payload formats are documented in
 [FINDINGS.md](FINDINGS.md) and still reachable through `get`/`set`, e.g.
 
 ```console
-$ ./cmfctl.py set SET_LHDC_COMMANDS 01     # enable LDAC, then `reconnect`
+$ ./cmfctl.py set SET_LHDC_COMMANDS 01     # enable LDAC (headphones restart themselves)
 $ ./cmfctl.py set SET_SPATIAL_AUDIO 0100   # spatial on, head tracking off
 $ ./cmfctl.py set SET_EQ_MODE 03           # more-bass
 ```
