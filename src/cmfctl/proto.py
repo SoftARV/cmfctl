@@ -15,7 +15,7 @@ import subprocess
 import struct
 import time
 
-import constants
+from . import constants
 
 # Byte 0 is always 0x55. Byte 1 is a flags byte that decides whether a CRC is
 # appended: 0x60 -> CRC present, 0x00 -> no CRC. Byte 2 varies (0x01/0x03/0x06)
