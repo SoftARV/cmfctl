@@ -11,7 +11,7 @@ Repo: **C** = `~/Projects/cmfctl` · **P** = the plugin repo
 
 ## Phase 1 — cmfctl core
 
-### [ ] T1 — Protocol test net **(C)**
+### [x] T1 — Protocol test net **(C)**
 
 Written **before** the move, not after. `proto.py` is pure, so it can be covered
 without headphones, and a suite that passes both sides of T2 is the only thing
@@ -21,17 +21,17 @@ that the code works.
 **Files:** `test/run.sh`, `test/proto_test.py`
 
 **Acceptance criteria**
-- [ ] `crc16_modbus` matches a known-good frame taken from `capture.log`
-- [ ] `build` → `frames` round-trips: empty payload, single byte, multi-byte
-- [ ] Two concatenated frames yield both — the streaming case the listener hits
-- [ ] A truncated buffer yields nothing and does **not** raise
-- [ ] A corrupted CRC yields `crc_ok = False` — it must not silently pass
-- [ ] A frame with no CRC flag yields `crc_ok = None`, distinct from `False`
-- [ ] `test/run.sh` runs the suite, exits non-zero on failure, and prints a
+- [x] `crc16_modbus` matches a known-good frame taken from `capture.log`
+- [x] `build` → `frames` round-trips: empty payload, single byte, multi-byte
+- [x] Two concatenated frames yield both — the streaming case the listener hits
+- [x] A truncated buffer yields nothing and does **not** raise
+- [x] A corrupted CRC yields `crc_ok = False` — it must not silently pass
+- [x] A frame with no CRC flag yields `crc_ok = None`, distinct from `False`
+- [x] `test/run.sh` runs the suite, exits non-zero on failure, and prints a
       one-line summary
-- [ ] `test/run.sh` **skips** `ruff` loudly when it is absent, never fails —
+- [x] `test/run.sh` **skips** `ruff` loudly when it is absent, never fails —
       `ruff` is not installed on this machine and is CI-only
-- [ ] The whole suite runs with the headphones off
+- [x] The whole suite runs with the headphones off
 
 **Verify:** `./test/run.sh` green · deliberately flip a byte in a fixture frame
 and confirm the CRC test fails
