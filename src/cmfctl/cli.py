@@ -19,14 +19,12 @@ import argparse
 import queue
 import re
 import subprocess
-import os
 import sys
 import threading
 import time
 
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-import constants
-import proto
+from . import constants
+from . import proto
 
 CHANNEL = 28
 

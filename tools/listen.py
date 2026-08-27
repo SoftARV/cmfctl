@@ -13,8 +13,11 @@ import socket
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-import proto
+# proto lives in the package next door; resolve through any symlink so this
+# runs from a checkout reached by one.
+sys.path.insert(0, os.path.join(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "src"))
+from cmfctl import proto
 
 DEFAULT_CH = 28
 
