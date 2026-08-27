@@ -99,24 +99,36 @@ contract, same batched dependency report.
 
 **Verify:** `HOME=$(mktemp -d) ./install.sh` twice · `./test/run.sh`
 
-### [ ] T4 — `0.1.0` and `--version` **(C)**
+### [x] T4 — `0.1.0` and `--version` **(C)**
 
 **Files:** `src/cmfctl/__init__.py`, `src/cmfctl/cli.py`, `test/version_test.sh`
 
 **Acceptance criteria**
-- [ ] `__version__ = "0.1.0"` in `src/cmfctl/__init__.py` — the canonical source
-- [ ] `cli.py` **imports** it; the string appears exactly once in the codebase
-- [ ] `cmfctl --version` prints `0.1.0` and exits 0
-- [ ] `--version` is listed in `--help`
-- [ ] `version_test.sh` derives the expected value from `__init__.py` rather than
+- [x] `__version__ = "0.1.0"` in `src/cmfctl/__init__.py` — the canonical source
+- [x] `cli.py` **imports** it; the string appears exactly once in the codebase
+- [x] `cmfctl --version` prints `0.1.0` and exits 0
+- [x] `--version` is listed in `--help`
+- [x] `version_test.sh` derives the expected value from `__init__.py` rather than
       hardcoding it, so a bump never touches a test
-- [ ] It asserts: semver shape · `--version` matches · newest non-`[Unreleased]`
+- [x] It asserts: semver shape · `--version` matches · newest non-`[Unreleased]`
       `CHANGELOG.md` heading matches · a tag on `HEAD`, if any, is `v<version>`
-- [ ] The changelog assertion **skips loudly, naming T5**, until `CHANGELOG.md`
+- [x] The changelog assertion **skips loudly, naming T5**, until `CHANGELOG.md`
       exists — never passes vacuously
 
-**Verify:** `cmfctl --version` · `./test/run.sh` · hand-edit `__init__.py` to
-`0.1.1` and confirm `version_test.sh` fails
+**Verify:** `cmfctl --version` · `./test/run.sh`
+
+*The planned check — bump `__init__.py` to `0.1.1` and watch the test fail —
+does **not** fail, by design. `cli.py` imports the canonical value, so a lone
+bump leaves nothing to disagree with; that model was carried over from
+`pip-plugin`, whose bash CLI cannot import and so keeps a second copy. The two
+assertions that can catch drift were exercised directly instead, since both are
+skipped in normal runs and would otherwise ship untested:*
+
+- *changelog: a temporary `CHANGELOG.md` at `[0.1.0]` passes; bumping the
+  package to `0.1.1` fails with `expected: 0.1.1 / actual: 0.1.0`*
+- *tag: a local `v0.9.9` fails, `v0.1.0` passes; both deleted afterwards*
+- *duplicate literal: a second `"0.1.0"` added to `tools/listen.py` fails with
+  `expected: 1 / actual: 2`*
 
 ---
 

@@ -23,6 +23,7 @@ import sys
 import threading
 import time
 
+from . import __version__
 from . import constants
 from . import proto
 
@@ -405,6 +406,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--mac", help="override device address")
+    ap.add_argument("--version", action="version", version=__version__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("battery")
     a = sub.add_parser("anc"); a.add_argument("mode", nargs="?")

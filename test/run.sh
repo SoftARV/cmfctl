@@ -25,6 +25,14 @@ command -v python3 >/dev/null || {
   exit 1
 }
 
+# Stale bytecode can outlive its source. CPython validates a .pyc by (mtime in
+# whole seconds, size), so two edits of the same length inside one second leave
+# the old cache looking valid -- which produced a test failure reporting a
+# version the source no longer contained. Cheaper to drop the caches than to
+# debug that twice.
+find "$ROOT/src" "$ROOT/bin" "$ROOT/tools" -name __pycache__ -type d \
+  -exec rm -rf {} + 2>/dev/null || true
+
 files_run=0
 failed=()
 skipped=()
