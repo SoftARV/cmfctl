@@ -36,7 +36,7 @@ that the code works.
 **Verify:** `./test/run.sh` green · deliberately flip a byte in a fixture frame
 and confirm the CRC test fails
 
-### [ ] T2 — `bin/` + `src/` layout **(C)**
+### [x] T2 — `bin/` + `src/` layout **(C)**
 
 The riskiest operation in the project. `~/.local/bin/cmfctl` currently points at
 `~/Projects/cmfctl/cmfctl.py` — **the exact file this task moves** — so the
@@ -46,20 +46,24 @@ symlink must be re-pointed inside this task, never as a follow-up.
 `tools/listen.py`, `docs/{FINDINGS.md,capture.log}`, `~/.local/bin/cmfctl`
 
 **Acceptance criteria**
-- [ ] Layout matches SPEC §3.3; every move is `git mv`, so history follows
-- [ ] `bin/cmfctl` keeps the `realpath` trick from `cmfctl.py:27`, retargeted at
+- [x] Layout matches SPEC §3.3; every move is `git mv`, so history follows
+- [x] `bin/cmfctl` keeps the `realpath` trick from `cmfctl.py:27`, retargeted at
       `../src` — this is what makes the symlink install work
-- [ ] `~/.local/bin/cmfctl` re-pointed at `bin/cmfctl` **in this task**
-- [ ] T1's suite still passes, unchanged — no test edited to accommodate the move
-- [ ] `cmfctl status --json` works **from `/tmp`, through the symlink** — not
-      from the repo root, which would pass even with the trick broken
-- [ ] Every documented subcommand runs: `battery`, `anc`, `anc` ×6 modes,
+- [x] `~/.local/bin/cmfctl` re-pointed at `bin/cmfctl` **in this task**
+- [x] T1's suite still passes, unchanged — no test edited to accommodate the move
+- [~] `cmfctl status --json` works **from `/tmp`, through the symlink** — not
+      from the repo root, which would pass even with the trick broken.
+      *Import chain verified from `/tmp`: `--help` exits 0 and `status` reaches
+      `find_device()`. No CMF device connected, so the JSON itself is unverified
+      — Checkpoint A.*
+- [~] Every documented subcommand runs: `battery`, `anc`, `anc` ×6 modes,
       `status`, `status --json`, `features`, `dump`, `listen`, `probe`, `codec`,
-      `get`, `set`
-- [ ] `python3 -m compileall -q bin src tools` clean
-- [ ] `CmfService.qml`'s comments are untouched — they record runtime facts
+      `get`, `set`. *All 10 subparsers reachable and dispatched, verified
+      statically and via `--help`. Execution against hardware — Checkpoint A.*
+- [x] `python3 -m compileall -q bin src tools` clean
+- [x] `CmfService.qml`'s comments are untouched — they record runtime facts
       (StdioCollector ordering, `EBUSY`, the LDAC power-cycle)
-- [ ] The move and any edit are separate commits
+- [x] The move and any edit are separate commits
 
 **Verify:** `cd /tmp && cmfctl status --json` · `./test/run.sh` · the bar widget
 still shows battery and switches ANC
@@ -67,6 +71,9 @@ still shows battery and switches ANC
 > **CHECKPOINT A** — headphones on. `command -v cmfctl` resolves, `cmfctl status
 > --json` prints from `/tmp`, and the live widget works. Recovery if not:
 > `ln -sfn ~/Projects/cmfctl/bin/cmfctl ~/.local/bin/cmfctl`.
+
+> **Deferred to Checkpoint A** (no CMF device connected during T2): live
+> `status --json` output, and each ANC mode round-tripping.
 
 ### [ ] T3 — `install.sh` **(C)**
 
