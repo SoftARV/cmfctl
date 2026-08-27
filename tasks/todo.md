@@ -51,15 +51,11 @@ symlink must be re-pointed inside this task, never as a follow-up.
       `../src` — this is what makes the symlink install work
 - [x] `~/.local/bin/cmfctl` re-pointed at `bin/cmfctl` **in this task**
 - [x] T1's suite still passes, unchanged — no test edited to accommodate the move
-- [~] `cmfctl status --json` works **from `/tmp`, through the symlink** — not
-      from the repo root, which would pass even with the trick broken.
-      *Import chain verified from `/tmp`: `--help` exits 0 and `status` reaches
-      `find_device()`. No CMF device connected, so the JSON itself is unverified
-      — Checkpoint A.*
-- [~] Every documented subcommand runs: `battery`, `anc`, `anc` ×6 modes,
+- [x] `cmfctl status --json` works **from `/tmp`, through the symlink** — not
+      from the repo root, which would pass even with the trick broken
+- [x] Every documented subcommand runs: `battery`, `anc`, `anc` ×6 modes,
       `status`, `status --json`, `features`, `dump`, `listen`, `probe`, `codec`,
-      `get`, `set`. *All 10 subparsers reachable and dispatched, verified
-      statically and via `--help`. Execution against hardware — Checkpoint A.*
+      `get`, `set`
 - [x] `python3 -m compileall -q bin src tools` clean
 - [x] `CmfService.qml`'s comments are untouched — they record runtime facts
       (StdioCollector ordering, `EBUSY`, the LDAC power-cycle)
@@ -72,10 +68,12 @@ still shows battery and switches ANC
 > --json` prints from `/tmp`, and the live widget works. Recovery if not:
 > `ln -sfn ~/Projects/cmfctl/bin/cmfctl ~/.local/bin/cmfctl`.
 
-> **Deferred to Checkpoint A** (no CMF device connected during T2): live
-> `status --json` output, and each ANC mode round-tripping.
+> **CHECKPOINT A CLEARED** 2026-08-28. `status --json` from `/tmp` through the
+> symlink returned battery 25%, LDAC negotiated; all six ANC modes round-tripped
+> and the starting mode was restored. Widget not checked — it is out of the bar
+> while the plugin is being reorganised.
 
-### [ ] T3 — `install.sh` **(C)**
+### [x] T3 — `install.sh` **(C)**
 
 Makes T2's layout reproducible for someone who is not you. Modelled on
 `pip-plugin/install.sh`: same `say`/`warn` helpers, same safe-to-re-run
@@ -84,20 +82,20 @@ contract, same batched dependency report.
 **Files:** `install.sh`, `test/install_test.sh`
 
 **Acceptance criteria**
-- [ ] Resolves its own directory via `BASH_SOURCE`; works when run from anywhere
-- [ ] Reports **all** missing dependencies at once, not one per run
-- [ ] Checks `python3` ≥ 3.9 **and** that `import socket; socket.AF_BLUETOOTH`
+- [x] Resolves its own directory via `BASH_SOURCE`; works when run from anywhere
+- [x] Reports **all** missing dependencies at once, not one per run
+- [x] Checks `python3` ≥ 3.9 **and** that `import socket; socket.AF_BLUETOOTH`
       resolves — a missing bluetooth stack fails here, loudly, not later inside
       the widget
-- [ ] Symlinks `bin/cmfctl` → `~/.local/bin/cmfctl`, creating the dir if needed
-- [ ] An existing symlink already pointing here: says so, changes nothing
-- [ ] A **real file** at the target is left alone with a warning, never clobbered
-- [ ] Warns when `~/.local/bin` is not on `$PATH`
-- [ ] Prints the verification command as its last line
-- [ ] `set -euo pipefail`; no `sudo` anywhere
-- [ ] `install_test.sh` covers, under a temp `HOME`: fresh install, re-run is a
+- [x] Symlinks `bin/cmfctl` → `~/.local/bin/cmfctl`, creating the dir if needed
+- [x] An existing symlink already pointing here: says so, changes nothing
+- [x] A **real file** at the target is left alone with a warning, never clobbered
+- [x] Warns when `~/.local/bin` is not on `$PATH`
+- [x] Prints the verification command as its last line
+- [x] `set -euo pipefail`; no `sudo` anywhere
+- [x] `install_test.sh` covers, under a temp `HOME`: fresh install, re-run is a
       no-op, real file refused, stale symlink re-pointed
-- [ ] shellcheck clean
+- [x] shellcheck clean
 
 **Verify:** `HOME=$(mktemp -d) ./install.sh` twice · `./test/run.sh`
 
