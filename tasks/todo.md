@@ -369,23 +369,29 @@ job of its own.
 diagnose, so the assertion now carries the installer's own output — which named
 the cause immediately on the next run.*
 
-### [ ] T12 — Tag and release `0.1.0` **(C + P)**
+### [x] T12 — Tag and release `0.1.0` **(C + P)**
 
 Last, because a tag should name a commit CI has already verified.
 
 **Files:** `CHANGELOG.md` in both, plus tags and releases
 
 **Acceptance criteria**
-- [ ] `version_test.sh` passes in both repos
-- [ ] `cmfctl --version` prints `0.1.0`; `jq -r .version manifest.json` prints `0.1.0`
-- [ ] The newest non-`[Unreleased]` heading in each `CHANGELOG.md` is `[0.1.0]`,
+- [x] `version_test.sh` passes in both repos
+- [x] `cmfctl --version` prints `0.1.0`; `jq -r .version manifest.json` prints `0.1.0`
+- [x] The newest non-`[Unreleased]` heading in each `CHANGELOG.md` is `[0.1.0]`,
       dated
-- [ ] `git tag -a v0.1.0`, pushed with `--follow-tags`, on both
-- [ ] `gh release create v0.1.0` on both; `gh release view` succeeds
-- [ ] Each `CHANGELOG.md` keeps an empty `## [Unreleased]` for what comes next
-- [ ] No version string exists outside the canonical source and the changelog
+- [x] `git tag -a v0.1.0`, pushed with `--follow-tags`, on both
+- [x] `gh release create v0.1.0` on both; `gh release view` succeeds
+- [x] Each `CHANGELOG.md` keeps an empty `## [Unreleased]` for what comes next
+- [x] No version string exists outside the canonical source and the changelog
 
 **Verify:** `gh release view v0.1.0` in both repos
+
+*Both PRs were rebase-merged, keeping history linear — neither repo has ever
+carried a merge commit, and rebasing preserves the one-commit-per-task
+structure the plan was built on. cmfctl `main` is 24 commits, the widget 15,
+zero merges in either. Tagging after the merge means `v0.1.0` names a commit
+that is actually on `main`.*
 
 ---
 
