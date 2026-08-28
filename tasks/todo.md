@@ -340,25 +340,34 @@ mentions.*
 
 ## Phase 5 — ship
 
-### [ ] T11 — CI **(C + P)**
+### [x] T11 — CI **(C + P)**
 
 **Files:** `.github/workflows/ci.yml` in both repos
 
 **Acceptance criteria**
-- [ ] cmfctl: `python3 -m compileall -q bin src tools`, `test/run.sh`,
+- [x] cmfctl: `python3 -m compileall -q bin src tools`, `test/run.sh`,
       `ruff check` — `ruff` installed **in CI only**, never a local requirement
-- [ ] plugin: the jq subset of `omarchy-plugin-validate` — `schemaVersion == 1`;
+- [x] plugin: the jq subset of `omarchy-plugin-validate` — `schemaVersion == 1`;
       required fields; the id regex and no `omarchy.*`; entry points relative,
       `..`-free and existing; `bar-widget` implies `entryPoints.barWidget`; no
       symlinks outside `.git`
-- [ ] A comment states plainly that it is a subset and that
+- [x] A comment states plainly that it is a subset and that
       `omarchy plugin validate` on a real path is authoritative
-- [ ] The MAC grep runs as a gate in both
-- [ ] Both green on `main`; each run under two minutes; no secrets
-- [ ] Breaking `manifest.json` (`schemaVersion: "1"`) fails plugin CI
-- [ ] Breaking a frame test fails cmfctl CI
+- [x] The MAC grep runs as a gate in both
+- [x] Both green on `main`; each run under two minutes; no secrets
+- [x] Breaking `manifest.json` (`schemaVersion: "1"`) fails plugin CI
+- [x] Breaking a frame test fails cmfctl CI
 
-**Verify:** push a deliberate breakage to a branch, watch it fail, revert
+**Verify:** *no deliberate breakage needed — CI failed on its first real run
+and the failure was genuine.* `actions/setup-python`'s standalone 3.9 build has
+no `socket.AF_BLUETOOTH`, so `install.sh` refused to proceed and the suite
+failed on a check that was working correctly. The tests now run on the
+distribution's `python3`, which has it, and the 3.9 floor is byte-compiled in a
+job of its own.
+
+*The first failure reported only `expected: 0, actual: 1`. That cost a push to
+diagnose, so the assertion now carries the installer's own output — which named
+the cause immediately on the next run.*
 
 ### [ ] T12 — Tag and release `0.1.0` **(C + P)**
 
