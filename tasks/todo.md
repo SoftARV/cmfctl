@@ -169,36 +169,38 @@ topics · every README link resolves
 
 ## Phase 3 — plugin move, rename, publish
 
-### [ ] T6 — Relocate and dual-mode `install.sh` **(P)**
+### [x] T6 — Relocate and dual-mode `install.sh` **(P)**
 
 Plain `mv` so `.git` travels and all 8 commits survive — never re-init. Then
 `install.sh` writes the runtime files back, so the bar is broken only for the
 moment between the two.
 
-**Decide the directory name before starting** (open question 3).
+*Open question 3 resolved: `~/Projects/cmf-headphones-plugin`.*
 
 **Files:** the whole repo → `~/Projects/cmf-headphones-plugin`, plus
 `install.sh`, `test/{run.sh,manifest_test.sh,validate_test.sh}`, `.gitignore`
 
 **Acceptance criteria**
-- [ ] `git log --oneline | wc -l` ≥ 8 in the moved repo — history survived
-- [ ] `install.sh` is **dual-mode**: when its own directory *is* the plugins dir
+- [x] `git log --oneline | wc -l` ≥ 8 in the moved repo — history survived
+- [x] `install.sh` is **dual-mode**: when its own directory *is* the plugins dir
       it says so and copies nothing, preserving the user's git checkout so
       `omarchy plugin update` keeps working (SPEC §2.4)
-- [ ] The file list is derived from `manifest.json` plus a root `*.qml` sweep,
+- [x] The file list is derived from `manifest.json` plus a root `*.qml` sweep,
       never hardcoded — a hardcoded list is how `pip-plugin` lost `Panel.qml`
-- [ ] `NothingHeadphoneIcon.qml` is carried by the sweep, though it is not an
+- [x] `NothingHeadphoneIcon.qml` is carried by the sweep, though it is not an
       entry point
-- [ ] Copies only when `cmp` differs; a second run reports "already up to date"
-- [ ] Runs `omarchy-shell shell rescanPlugins`, then prints the
+- [x] Copies only when `cmp` differs; a second run reports "already up to date"
+- [x] Runs `omarchy-shell shell rescanPlugins`, then prints the
       `omarchy restart shell` reminder
-- [ ] The installed dir holds **exactly** `manifest.json` + the three `.qml`
+- [x] The installed dir holds **exactly** `manifest.json` + the three `.qml`
       files — no `.git`, `docs/`, `test/`
-- [ ] `.gitignore` forbids test scratch inside the repo — **any** symlink under a
+- [x] `.gitignore` forbids test scratch inside the repo — **any** symlink under a
       plugin folder fails `omarchy plugin validate`
-- [ ] `omarchy plugin validate` exits 0 against **both** the repo and the
+- [x] `omarchy plugin validate` exits 0 against **both** the repo and the
       installed copy
-- [ ] The widget still renders and switches ANC, under the **old** id
+- [~] The widget still renders and switches ANC, under the **old** id.
+      *Installed and validated, but not on the bar: you removed it while we
+      reorganise and will re-add it once T10 lands the dependency check.*
 
 **Verify:** `./install.sh` twice · `omarchy plugin validate` both paths ·
 `omarchy restart shell` and use the widget
