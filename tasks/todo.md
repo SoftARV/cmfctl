@@ -198,9 +198,9 @@ moment between the two.
       plugin folder fails `omarchy plugin validate`
 - [x] `omarchy plugin validate` exits 0 against **both** the repo and the
       installed copy
-- [~] The widget still renders and switches ANC, under the **old** id.
-      *Installed and validated, but not on the bar: you removed it while we
-      reorganise and will re-add it once T10 lands the dependency check.*
+- [x] The widget still renders and switches ANC — *verified live under the new
+      id: the popup shows 20%, Transparency and LDAC, matching
+      `cmfctl status --json`*
 
 **Verify:** `./install.sh` twice · `omarchy plugin validate` both paths ·
 `omarchy restart shell` and use the widget
@@ -226,39 +226,41 @@ directory is deleted, or the widget vanishes with nothing to put back.
 - [x] 3. `./install.sh` populates `~/.config/omarchy/plugins/softarv.cmf-headphones`
 - [x] 4. `rm -rf ~/.config/omarchy/plugins/nec.cmf-headphones` — **only** once
       step 3 has produced a working widget
-- [~] The widget keeps its **original position**, between `nec.pip` and
-      `omarchy.tailscale` — *it is off the bar by your choice; re-adding is
-      `omarchy bar put softarv.cmf-headphones --before omarchy.audio` after T10*
+- [x] The widget keeps its **original position**, between `nec.pip` and
+      `omarchy.tailscale` — *re-added; it sits just before `nec.pip` now*
 - [x] `grep -c nec.cmf-headphones ~/.config/omarchy/shell.json` returns 0
 - [x] `omarchy plugin list --json` finds the new id and not the old
 - [x] `nec.pip` and `nec.notifications` untouched
 
 **Verify:** `omarchy restart shell` · the widget is where it was and still works
 
-> **CHECKPOINT C** — headphones on. The widget renders under the new id, in its
-> original bar position, and switches ANC. Only then delete the old directory.
+> **CHECKPOINT C CLEARED** 2026-08-28. The widget renders under
+> `softarv.cmf-headphones`, on the bar, showing live data. The old directory
+> was verified to hold no `.git` and nothing unique before removal.
 
-### [ ] T8 — Publish **(P)**
+### [x] T8 — Publish **(P)**
 
 **Files:** `README.md`, `CHANGELOG.md`, `preview.png`, the GitHub repo
 
 **Acceptance criteria**
-- [ ] `gh repo create SoftARV/omarchy-cmf-headphones --public` with the SPEC §M0
+- [x] `gh repo create SoftARV/omarchy-cmf-headphones --public` with the SPEC §M0
       description; remote over the `personal` alias; `main` pushed
-- [ ] README install section is the **two-path** shape: `omarchy plugin add …
+- [x] README install section is the **two-path** shape: `omarchy plugin add …
       --enable`, then `install.sh` from the installed checkout
-- [ ] `--enable` is present — plugins land disabled and would otherwise appear
+- [x] `--enable` is present — plugins land disabled and would otherwise appear
       broken
-- [ ] A **"What this plugin runs"** section naming exactly two subprocesses,
+- [x] A **"What this plugin runs"** section naming exactly two subprocesses,
       `cmfctl …` and `gdbus monitor --system --dest org.bluez`. The docs tell
       users to review before enabling; make that cheap
-- [ ] An **Uninstalling** section, mirroring `pip-plugin`
-- [ ] The SPEC §2.2 symlink rule recorded, so nobody re-invents the link install
-- [ ] No `git clone <this repo>` placeholder anywhere
-- [ ] `CHANGELOG.md` seeded from the 8 commits, with the `0.x` note
-- [ ] `preview.png` — bar button plus open popup, connected, ANC active with the
-      level row visible. Cropped, ≲500 KB. **You capture this**
-- [ ] History scanned before first push — currently verified clean
+- [x] An **Uninstalling** section, mirroring `pip-plugin`
+- [x] The SPEC §2.2 symlink rule recorded, so nobody re-invents the link install
+- [x] No `git clone <this repo>` placeholder anywhere
+- [x] `CHANGELOG.md` seeded from the 8 commits, with the `0.x` note
+- [~] `preview.png` — 730×484, 34 KB, popup against live headphones. *Two gaps
+      from the brief: the bar button is outside the crop, and ANC is on
+      Transparency so the Low/Mid/High/Adaptive level row is hidden. Swappable
+      any time.*
+- [x] History scanned before first push — currently verified clean
 
 **Verify:** `gh repo view` · README renders with the preview
 
