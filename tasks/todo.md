@@ -205,7 +205,7 @@ moment between the two.
 **Verify:** `./install.sh` twice · `omarchy plugin validate` both paths ·
 `omarchy restart shell` and use the widget
 
-### [ ] T7 — Rename the id to `softarv.cmf-headphones` **(P)**
+### [x] T7 — Rename the id to `softarv.cmf-headphones` **(P)**
 
 Your GitHub alias, not your laptop login. Do it now: an id is public from first
 publication, and with no users yet it costs one string.
@@ -216,19 +216,22 @@ directory is deleted, or the widget vanishes with nothing to put back.
 **Files:** `manifest.json`, `~/.config/omarchy/shell.json`, both plugin dirs
 
 **Acceptance criteria**
-- [ ] `~/.config/omarchy/shell.json` **backed up** before any edit
-- [ ] 1. `manifest.json`: `id` → `softarv.cmf-headphones`, `author` → `Miguel Rincon`
-- [ ] 2. `shell.json`: the `bar.layout.right` entry `{"id": "nec.cmf-headphones"}`
-      → `{"id": "softarv.cmf-headphones"}` — verified to carry no settings, so
-      this is one string with nothing to migrate
-- [ ] 3. `./install.sh` populates `~/.config/omarchy/plugins/softarv.cmf-headphones`
-- [ ] 4. `rm -rf ~/.config/omarchy/plugins/nec.cmf-headphones` — **only** once
+- [x] `~/.config/omarchy/shell.json` **backed up** before any edit —
+      *not needed: the widget had already been taken off the bar, so the file
+      held no reference to either id and was never opened*
+- [x] 1. `manifest.json`: `id` → `softarv.cmf-headphones`, `author` → `Miguel Rincon`
+- [x] 2. `shell.json`: no-op, per above. **`Panel.qml` needed it instead** —
+      `moduleName` and `ipcTarget` both carried the id and were not in the
+      plan; missing them would have left IPC addressing a dead id
+- [x] 3. `./install.sh` populates `~/.config/omarchy/plugins/softarv.cmf-headphones`
+- [x] 4. `rm -rf ~/.config/omarchy/plugins/nec.cmf-headphones` — **only** once
       step 3 has produced a working widget
-- [ ] The widget keeps its **original position**, between `nec.pip` and
-      `omarchy.tailscale`
-- [ ] `grep -c nec.cmf-headphones ~/.config/omarchy/shell.json` returns 0
-- [ ] `omarchy plugin list --json` finds the new id and not the old
-- [ ] `nec.pip` and `nec.notifications` untouched
+- [~] The widget keeps its **original position**, between `nec.pip` and
+      `omarchy.tailscale` — *it is off the bar by your choice; re-adding is
+      `omarchy bar put softarv.cmf-headphones --before omarchy.audio` after T10*
+- [x] `grep -c nec.cmf-headphones ~/.config/omarchy/shell.json` returns 0
+- [x] `omarchy plugin list --json` finds the new id and not the old
+- [x] `nec.pip` and `nec.notifications` untouched
 
 **Verify:** `omarchy restart shell` · the widget is where it was and still works
 
