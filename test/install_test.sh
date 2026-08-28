@@ -123,7 +123,14 @@ rm -rf "$home"
 home=$(new_home)
 out=$(cd / && HOME="$home" PATH="$home/.local/bin:$PATH" bash "$INSTALL" 2>&1)
 status=$?
-assert_eq 0 "$status" "runs from a different working directory"
+# Carry the installer's own output into the failure. An assertion that reports
+# only "expected 0, actual 1" sends whoever reads it back to reproduce the run
+# by hand, which on a CI-only failure means a push per guess.
+if [[ $status -eq 0 ]]; then
+  pass "runs from a different working directory"
+else
+  fail "runs from a different working directory" "exit $status" "${out//$'\n'/ | }"
+fi
 assert_symlink_to "$home/$TARGET_REL" "$ROOT/bin/cmfctl" \
   "links correctly when invoked by absolute path from elsewhere"
 rm -rf "$home"
