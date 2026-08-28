@@ -18,23 +18,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          # The floor install.sh enforces. Testing on it means a syntax error
-          # that only 3.9 would raise cannot reach someone running it.
-          python-version: "3.9"
+      # Deliberately the distribution's python3, not actions/setup-python.
+      # install.sh refuses to run without socket.AF_BLUETOOTH, and the
+      # standalone builds setup-python installs are compiled without it -- so
+      # the whole suite fails on a check that is doing its job. Distribution
+      # builds carry it, which is also what every real user has.
+      - name: Confirm the interpreter has Bluetooth sockets
+        run: |
+          python3 -VV
+          python3 -c 'import socket; socket.AF_BLUETOOTH; print("AF_BLUETOOTH present")'
 
       - name: Install linters
         run: |
-          python -m pip install --quiet ruff
+          python3 -m pip install --quiet --break-system-packages ruff
           sudo apt-get update -qq
           sudo apt-get install -y -qq shellcheck
 
       - name: Byte-compile
-        run: python -m compileall -q bin src tools
+        run: python3 -m compileall -q bin src tools
 
       - name: Test
         run: ./test/run.sh
+
+  python-floor:
+    # install.sh advertises 3.9 as the minimum, so something has to check that
+    # the code actually parses there. Only a syntax check: the behavioural
+    # tests need an interpreter with Bluetooth support, which this is not.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - run: python -m compileall -q bin src tools
 
   leak-check:
     # Kept separate from the suite so it is visibly its own gate. A device
