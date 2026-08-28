@@ -1,0 +1,33 @@
+# Lint rules, pinned deliberately.
+#
+# ruff's default selection has widened between releases, and a CI gate that
+# inherits it is a job that starts failing on someone else's release schedule
+# rather than on a change to this code. So the set is named here.
+#
+# What is in:
+#   E4/E7/E9  the pycodestyle rules that flag errors rather than formatting
+#   F         pyflakes -- unused imports, undefined names, real mistakes
+#   B         bugbear -- latent bugs, mutable defaults, loop-variable capture
+#
+# What is deliberately out, and why:
+#   E501      line length. The prose comments here run to the margin on
+#             purpose; reflowing them to satisfy a linter would cost more than
+#             it returns.
+#   I         import ordering. Mechanical churn across files whose history was
+#             just rewritten by a move; not worth muddying the diff.
+#   S, BLE, SIM, DTZ, PLW, RUF
+#             opinions about defensive style. `except Exception: pass` around a
+#             best-effort PipeWire probe is the intended behaviour, not an
+#             oversight, and a timezone-naive timestamp in a local capture log
+#             is what makes the log readable.
+
+target-version = "py39"
+
+[lint]
+select = ["E4", "E7", "E9", "F", "B"]
+
+# The subcommand table in cli.py pairs each parser with its arguments on one
+# line, which reads as a table and is the point. E7's other rules -- comparison
+# to None, bare except -- are worth keeping, so this is ignored by name rather
+# than dropping the family.
+ignore = ["E702"]

@@ -1,0 +1,56 @@
+# Everything here runs without a CMF Headphone Pro, because none of it needs
+# one: proto.py is pure, install.sh is exercised against a throwaway HOME, and
+# the docs checks read files. The hardware-dependent behaviour is a checklist
+# in tasks/todo.md, run by hand.
+name: ci
+
+on:
+  push:
+    branches: [main, "reorg/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # The floor install.sh enforces. Testing on it means a syntax error
+          # that only 3.9 would raise cannot reach someone running it.
+          python-version: "3.9"
+
+      - name: Install linters
+        run: |
+          python -m pip install --quiet ruff
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+
+      - name: Byte-compile
+        run: python -m compileall -q bin src tools
+
+      - name: Test
+        run: ./test/run.sh
+
+  leak-check:
+    # Kept separate from the suite so it is visibly its own gate. A device
+    # address pushed to a public repo cannot be recalled by deleting it, and
+    # this repo carries a real capture that was redacted by hand.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: No MAC address anywhere in history
+        run: |
+          if git grep -InE '([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}' \
+               $(git rev-list --all) -- . ; then
+            echo "::error::a device address is committed somewhere in history"
+            exit 1
+          fi
+          echo "clean"
