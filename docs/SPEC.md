@@ -1,9 +1,37 @@
 # SPEC — cmfctl & the CMF Headphones widget: two publishable repos
 
-Status: **draft, awaiting approval**
-Date: 2026-08-28
-Scope: cross-repo. Lives here because `cmfctl` is the dependency the other side
-rests on. The widget gets its own `docs/SPEC.md` when it grows features.
+- **Status:** shipped 2026-08-28 as `0.1.0` on both repos
+- **Date:** 2026-08-28
+- **Scope:** cross-repo. Lives here because `cmfctl` is the dependency the other
+  side rests on. The widget gets its own `docs/SPEC.md` when it grows features.
+- **Delivered by:** [`tasks/plan.md`](../tasks/plan.md) — T1–T12, all twelve, with
+  Checkpoints A, C and E cleared. A later spec goes in `docs/SPEC-<version>.md`
+  and builds on this one rather than replacing it.
+
+---
+
+## 0. As shipped
+
+Five things went differently from what is written below. They are recorded here
+rather than edited into the text, because a spec that is quietly rewritten to
+match the outcome stops being evidence of what was decided when.
+
+1. **`showBattery` was dropped, not wired** (§M3 recommended wiring it). The bar
+   carries the mark alone; battery is in the popup, where there is room.
+2. **The `shell.json` edit never happened** (§M3 step 2, and the largest risk in
+   the plan). The widget had already been taken off the bar, so no entry
+   referenced either id. `Panel.qml` needed the rename instead — it carried the
+   id twice, as `moduleName` and `ipcTarget`, which this document did not
+   anticipate.
+3. **The plugin repo was created early**, at T6 rather than T8, so both projects
+   could carry a draft PR while the work was in flight.
+4. **The manifest advertised spatial audio and EQ**, neither of which has a
+   control. Found while removing `showBattery`; both descriptions were corrected
+   and a test now refuses a description naming a capability the QML lacks.
+5. **CI runs on the distribution's `python3`**, not `actions/setup-python`, whose
+   standalone builds have no `socket.AF_BLUETOOTH` — so `install.sh` correctly
+   refused to run and the suite failed on a check that was working. The 3.9
+   floor is byte-compiled in a job of its own.
 
 ---
 
