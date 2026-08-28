@@ -291,7 +291,7 @@ switch in the user's settings UI that does nothing. **Open question 2:** wire it
 **Verify:** toggle it in the settings UI, watch the bar · checklist-only, there
 is no automated QML coverage
 
-### [ ] T10 — Detect a missing `cmfctl` **(P)**
+### [x] T10 — Detect a missing `cmfctl` **(P)**
 
 Today `CmfService.qml:onExited` treats every non-zero exit as "headphones off",
 so a user without `cmfctl` is told **"Not connected"** — a confident wrong
@@ -300,32 +300,41 @@ diagnosis pointing them at their Bluetooth.
 **Files:** `CmfService.qml`, `Panel.qml`, `scripts/install-deps.sh`, `install.sh`
 
 **Acceptance criteria**
-- [ ] Detection is an **explicit probe**, `sh -c 'command -v cmfctl'`, not an
+- [x] Detection is an **explicit probe**, `sh -c 'command -v cmfctl'`, not an
       inference from `statusProc`'s exit code — Quickshell gives no reliable code
       for a binary that fails to start, and `sh` always starts
-- [ ] Probe runs at startup and after each failed status
-- [ ] Missing: the popup says `cmfctl not found on PATH` plus a selectable fix
+- [x] Probe runs at startup and after each failed status
+- [x] Missing: the popup says `cmfctl not found on PATH` plus a selectable fix
       line naming `install.sh`
-- [ ] Missing: the ANC row, level row and LDAC toggle are **hidden, not
+- [x] Missing: the ANC row, level row and LDAC toggle are **hidden, not
       disabled** — none of them can do anything
-- [ ] **Present but headphones off: still "Not connected"** — the negative test
+- [x] **Present but headphones off: still "Not connected"** — the negative test
       that matters most
-- [ ] The bar icon uses the existing dimmed `barTint`; no new bar state
-- [ ] `scripts/install-deps.sh` clones `SoftARV/cmfctl` to
+- [x] The bar icon uses the existing dimmed `barTint`; no new bar state
+- [x] `scripts/install-deps.sh` clones `SoftARV/cmfctl` to
       `~/.local/share/cmfctl` (or pulls), runs its `install.sh`, verifies with
       `cmfctl status --json`, prints `omarchy restart shell` last
-- [ ] It refuses to run as root and uses no `sudo`
-- [ ] It is idempotent, and exits non-zero with a readable message when git or
+- [x] It refuses to run as root and uses no `sudo`
+- [x] It is idempotent, and exits non-zero with a readable message when git or
       the network is unavailable
-- [ ] `install.sh` delegates to it when `cmfctl` is missing
-- [ ] The LDAC restart flow — `restarting`, `restartGuard` — is untouched
+- [x] `install.sh` delegates to it when `cmfctl` is missing
+- [x] The LDAC restart flow — `restarting`, `restartGuard` — is untouched
 
-**Verify:** see Checkpoint E — this task has **no automated coverage**
+**Verify:** see Checkpoint E — the QML half has **no automated coverage**
 
-> **CHECKPOINT E** — take `cmfctl` off `PATH`, `omarchy restart shell`, read the
-> popup: it must name the dependency, not the Bluetooth. Then restore it and
-> confirm recovery. Then repeat with `cmfctl` present and the headphones off, and
-> confirm it still says "Not connected".
+*Trap worth knowing: `install.sh` runs `rescanPlugins`, which reloads plugin
+code but keeps the existing widget instance, so `Component.onCompleted` never
+re-runs and a new probe never starts. The first live check showed the old
+behaviour for that reason alone. **`omarchy restart shell` is required** for any
+change to `Component.onCompleted`, not just the geometry changes the README
+mentions.*
+
+> **CHECKPOINT E CLEARED** 2026-08-28. With `cmfctl` moved aside the popup named
+> the missing dependency and hid every control; confirmed visually. The probe
+> was instrumented to prove it, logging `exitCode=1 missing=true`, and fired
+> three times — startup plus the re-probe after each failed status. Restored,
+> and the widget returned to live data (`battery 15, anc off, ldac true`) with
+> no failed-to-start lines left in the log.
 
 ---
 
