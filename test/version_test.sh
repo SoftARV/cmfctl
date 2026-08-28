@@ -71,12 +71,15 @@ else
 fi
 
 # --- the git tag -----------------------------------------------------------
-# Only meaningful once a release is cut. Named so the debt is visible.
+# Applies only on a release commit. Most commits are not tagged, and that is
+# ordinary development rather than debt -- so this reports as not applicable
+# rather than naming a task that would remove it.
 head_tag=$(git -C "$ROOT" tag --points-at HEAD 2>/dev/null | head -1)
 if [[ -n $head_tag ]]; then
   assert_eq "v$VERSION" "$head_tag" "the tag on HEAD matches the declared version"
 else
-  skip "T12" "HEAD is not tagged; tag/version cross-check deferred to release"
+  latest=$(git -C "$ROOT" describe --tags --abbrev=0 2>/dev/null || echo "none yet")
+  skip "n/a" "HEAD is not a release commit (latest tag: $latest)"
 fi
 
 report
