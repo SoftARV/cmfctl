@@ -10,3 +10,6 @@ decompiled/
 
 # Local captures
 *.png
+
+# Local Claude rules: depend on locally installed skills, not shareable.
+CLAUDE.local.md
