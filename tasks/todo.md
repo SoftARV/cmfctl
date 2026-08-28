@@ -256,10 +256,8 @@ directory is deleted, or the widget vanishes with nothing to put back.
 - [x] The SPEC §2.2 symlink rule recorded, so nobody re-invents the link install
 - [x] No `git clone <this repo>` placeholder anywhere
 - [x] `CHANGELOG.md` seeded from the 8 commits, with the `0.x` note
-- [~] `preview.png` — 730×484, 34 KB, popup against live headphones. *Two gaps
-      from the brief: the bar button is outside the crop, and ANC is on
-      Transparency so the Low/Mid/High/Adaptive level row is hidden. Swappable
-      any time.*
+- [x] `preview.png` — 726×616, 44 KB: bar icon in frame, ANC active, the
+      Low/Mid/High/Adaptive level row visible, against live headphones
 - [x] History scanned before first push — currently verified clean
 
 **Verify:** `gh repo view` · README renders with the preview
