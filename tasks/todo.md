@@ -270,7 +270,7 @@ directory is deleted, or the widget vanishes with nothing to put back.
 
 ## Phase 4 — plugin install UX
 
-### [ ] T9 — `showBattery`, and schema descriptions **(P)**
+### [x] T9 — `showBattery`, and schema descriptions **(P)**
 
 `showBattery` is declared in `barWidget.schema` and read by no QML file — a
 switch in the user's settings UI that does nothing. **Open question 2:** wire it
@@ -279,14 +279,13 @@ switch in the user's settings UI that does nothing. **Open question 2:** wire it
 **Files:** `manifest.json`, `Panel.qml`
 
 **Acceptance criteria**
-- [ ] Either `grep showBattery *.qml` matches and toggling it changes the bar,
+- [x] Either `grep showBattery *.qml` matches and toggling it changes the bar,
       **or** the key and its `defaults` entry are gone — not a third state
-- [ ] If wired: the battery percentage shows beside the icon when true, hides
-      when false, with no layout jump on the bar
-- [ ] Every `barWidget.schema` entry gains a `description`, as first-party
+- [x] ~~If wired: the battery percentage shows beside the icon~~ — *n/a, dropped*
+- [x] Every `barWidget.schema` entry gains a `description`, as first-party
       manifests have
-- [ ] `omarchy plugin validate` still exits 0
-- [ ] The decision and its reason are recorded in `CHANGELOG.md` — a settings key
+- [x] `omarchy plugin validate` still exits 0
+- [x] The decision and its reason are recorded in `CHANGELOG.md` — a settings key
       changing behaviour is exactly what a changelog is for
 
 **Verify:** toggle it in the settings UI, watch the bar · checklist-only, there
