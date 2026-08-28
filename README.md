@@ -5,75 +5,88 @@ notification stream — without the Nothing X phone app.
 
 No existing Nothing/CMF tool supports this device: they all hardcode RFCOMM
 channel 15, and the Headphone Pro listens on **channel 28**. The protocol was
-reverse-engineered here from live capture; see [FINDINGS.md](FINDINGS.md).
+reverse-engineered here from live capture; see
+[docs/FINDINGS.md](docs/FINDINGS.md).
+
+## Install
+
+```console
+$ git clone https://github.com/SoftARV/cmfctl.git
+$ cd cmfctl
+$ ./install.sh
+```
+
+That symlinks `bin/cmfctl` into `~/.local/bin`. It is safe to re-run, and it
+never overwrites a file it did not create.
+
+Python 3.9 and BlueZ are the only requirements — RFCOMM is reached through the
+standard library's `AF_BLUETOOTH` socket, so there is nothing to install.
 
 ## Use
 
 Pair and connect the headphones normally, then:
 
 ```console
-$ ./cmfctl.py battery
-55%
+$ cmfctl battery
+20%
 
-$ ./cmfctl.py anc
-anc
-
-$ ./cmfctl.py anc transparency
+$ cmfctl anc
 transparency
 
-$ ./cmfctl.py anc mid
+$ cmfctl anc mid
 mid
 
-$ ./cmfctl.py anc transparency   # talk to someone
+$ cmfctl anc transparency   # talk to someone
 transparency
 
-$ ./cmfctl.py anc anc            # back to mid, not high
+$ cmfctl anc anc            # back to mid, not high
 mid
 
-$ ./cmfctl.py anc off
+$ cmfctl anc off
 off
 
-$ ./cmfctl.py status --json
-{"battery": 55, "anc": "anc", "ldac": true}
+$ cmfctl status --json
+{"battery": 20, "anc": "transparency", "ldac": true, "codec": "ldac", "codecs": ["AAC", "LDAC"]}
 ```
 
 `status` gathers everything over a single RFCOMM link, which is what makes
 polling from a bar widget cheap.
 
-`./cmfctl.py listen` streams decoded notifications until Ctrl-C.
-`./cmfctl.py probe` scans RFCOMM channels, useful on a different model.
+The **LDAC flag** and the **negotiated codec** are different facts: `ldac` says
+the headphones will offer it, `codec` is what host and device actually settled
+on. `status` reports both.
+
+`cmfctl listen` streams decoded notifications until Ctrl-C.
+`cmfctl probe` scans RFCOMM channels, useful on a different model.
 
 The device address is auto-detected from the connected Bluetooth devices;
 override with `--mac`.
 
 ```console
-$ ./cmfctl.py features
+$ cmfctl features
 supported features (0x0002AB43):
   + wear-detect
   + game-mode
+  + google-fast-pair
   ...
 
-$ ./cmfctl.py dump               # query every command, see what answers
+$ cmfctl dump               # query every command, see what answers
 ```
 
 Any of the 128 known commands can be reached directly:
 
 ```console
-$ ./cmfctl.py get GET_DEVICE_MODEL
+$ cmfctl get GET_DEVICE_MODEL
 75 b1
-$ ./cmfctl.py set SET_EQ_MODE 03
+$ cmfctl set SET_EQ_MODE 03
 ```
-
-## Requirements
-
-Python 3 and BlueZ. Nothing else — RFCOMM is reached through the standard
-library's `AF_BLUETOOTH` socket, so there is no dependency to install.
 
 ## Omarchy bar plugin
 
-`~/.config/omarchy/plugins/nec.cmf-headphones/` puts battery, the active noise
-mode and LDAC status in the bar, with ANC switching in the popup. It shells out
-to `cmfctl`, so `~/.local/bin/cmfctl` must stay on PATH.
+[**omarchy-cmf-headphones**](https://github.com/SoftARV/omarchy-cmf-headphones)
+puts battery, the active noise mode and LDAC status in the Omarchy bar, with
+ANC switching in the popup. It shells out to `cmfctl`, so this has to be
+installed and on `PATH` first.
 
 ## Status
 
@@ -83,12 +96,12 @@ reporting, plus generic `get`/`set` for every known command.
 
 **Shelved pending more work:** the `ldac`, `spatial` and `eq` subcommands were
 removed. Their command ids and payload formats are documented in
-[FINDINGS.md](FINDINGS.md) and still reachable through `get`/`set`, e.g.
+[docs/FINDINGS.md](docs/FINDINGS.md) and still reachable through `get`/`set`:
 
 ```console
-$ ./cmfctl.py set SET_LHDC_COMMANDS 01     # enable LDAC (headphones restart themselves)
-$ ./cmfctl.py set SET_SPATIAL_AUDIO 0100   # spatial on, head tracking off
-$ ./cmfctl.py set SET_EQ_MODE 03           # more-bass
+$ cmfctl set SET_LHDC_COMMANDS 01     # enable LDAC (headphones restart themselves)
+$ cmfctl set SET_SPATIAL_AUDIO 0100   # spatial on, head tracking off
+$ cmfctl set SET_EQ_MODE 03           # more-bass
 ```
 
 Not implemented by this model: bass boost (acked but ignored — it has the
@@ -96,9 +109,34 @@ physical Energy Slider instead).
 
 Not yet decoded: key/gesture configuration, custom EQ curve.
 
-`constants.py` holds all 128 command ids (EQ, spatial audio, button
+`src/cmfctl/constants.py` holds all 128 command ids (EQ, spatial audio, button
 configuration, and the rest) extracted from Nothing X, so adding a command is
 now a matter of wiring, not discovery.
 
 Not available over this channel: the Energy Slider and volume — see
-[FINDINGS.md](FINDINGS.md).
+[docs/FINDINGS.md](docs/FINDINGS.md).
+
+## Layout
+
+| | |
+|--|--|
+| `bin/cmfctl` | entry point; this is what lands on `PATH` |
+| `src/cmfctl/proto.py` | framing, CRC, RFCOMM |
+| `src/cmfctl/constants.py` | the 128 command ids |
+| `src/cmfctl/cli.py` | the command line |
+| `tools/listen.py` | passive frame logger, for porting to another model |
+| `docs/FINDINGS.md` | the protocol write-up, and what is still unknown |
+| `test/run.sh` | the test suite; needs no headphones |
+
+## Contributing
+
+`./test/run.sh` runs everything and needs neither hardware nor a network. The
+protocol tests use real frames captured from a device, so they pin the wire
+format rather than agreeing with whoever wrote them.
+
+See [CHANGELOG.md](CHANGELOG.md) for what changed, and
+[docs/SPEC.md](docs/SPEC.md) for how the project is organised.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).

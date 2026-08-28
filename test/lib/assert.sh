@@ -42,12 +42,18 @@ assert_eq() {
   fi
 }
 
+# Long haystacks are truncated: a failure that prints an entire README buries
+# the other failures above it and nobody scrolls back up.
 assert_contains() {
   local haystack="$1" needle="$2" msg="$3"
   if [[ $haystack == *"$needle"* ]]; then
     pass "$msg"
   else
-    fail "$msg" "expected to contain: $needle" "actual: $haystack"
+    local shown=$haystack
+    if (( ${#shown} > 200 )); then
+      shown="${shown:0:200}... (${#haystack} chars)"
+    fi
+    fail "$msg" "expected to contain: $needle" "actual: ${shown//$'\n'/ }"
   fi
 }
 

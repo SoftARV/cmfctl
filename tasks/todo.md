@@ -134,7 +134,7 @@ skipped in normal runs and would otherwise ship untested:*
 
 ## Phase 2 — cmfctl publishable
 
-### [ ] T5 — Licence, docs, repo metadata **(C)**
+### [x] T5 — Licence, docs, repo metadata **(C)**
 
 `cmfctl` is public **today** with no licence, description or topics. A public
 repo with no licence is legally unshareable regardless of intent.
@@ -143,21 +143,20 @@ repo with no licence is legally unshareable regardless of intent.
 `try_anc.py` (deleted), plus `gh repo edit`
 
 **Acceptance criteria**
-- [ ] `LICENSE` — MIT, "Miguel Rincon"
-- [ ] `CHANGELOG.md` — Keep a Changelog 1.1.0, an empty `## [Unreleased]`, and a
+- [x] `LICENSE` — MIT, "Miguel Rincon"
+- [x] `CHANGELOG.md` — Keep a Changelog 1.1.0, an empty `## [Unreleased]`, and a
       dated `## [0.1.0]` written **backwards from the six existing commits**:
       ANC across six modes, codec reporting, the LDAC self-restart correction.
       Not "initial release"
-- [ ] It carries the `0.x` note: the CLI surface may change between minor versions
-- [ ] README: `./cmfctl.py` → `cmfctl` throughout; an **Install** section leading
+- [x] It carries the `0.x` note: the CLI surface may change between minor versions
+- [x] README: `./cmfctl.py` → `cmfctl` throughout; an **Install** section leading
       with `install.sh`; the Omarchy section links the widget's GitHub URL
-- [ ] `docs/FINDINGS.md` links resolve after the move
-- [ ] **Open question 1 resolved:** `try_anc.py` deleted, or kept with a reason
-      recorded here
-- [ ] `gh repo edit` sets the description and topics from SPEC §M0
-- [ ] `git grep -iE '([0-9A-F]{2}:){5}[0-9A-F]{2}'` finds nothing — currently
+- [x] `docs/FINDINGS.md` links resolve after the move
+- [x] **Open question 1 resolved:** `try_anc.py` deleted — you confirmed it
+- [x] `gh repo edit` sets the description and topics from SPEC §M0
+- [x] `git grep -iE '([0-9A-F]{2}:){5}[0-9A-F]{2}'` finds nothing — currently
       verified clean in working tree *and* full history; keep it that way
-- [ ] `T4`'s changelog assertion now runs instead of skipping
+- [x] `T4`'s changelog assertion now runs instead of skipping
 
 **Verify:** `./test/run.sh` · `gh repo view SoftARV/cmfctl` shows description and
 topics · every README link resolves
