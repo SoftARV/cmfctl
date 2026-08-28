@@ -9,7 +9,6 @@ log, which is how we map command IDs without guessing.
 """
 import argparse
 import datetime
-import socket
 import os
 import sys
 

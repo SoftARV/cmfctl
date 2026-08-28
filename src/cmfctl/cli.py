@@ -171,7 +171,11 @@ def cmd_anc(link, args):
         # Wait for the device to say anything about ANC, not only for the value
         # asked for: when it answers with a restored level instead, reacting to
         # that immediately turns a 5s timeout into a second request right away.
-        link.wait_for(lambda: link.anc == want or link.anc != before, timeout=5)
+        # wait_for polls the predicate and returns before the loop can rebind
+        # `before`, so this closure never outlives its iteration -- which is the
+        # only thing B023 is warning about.
+        link.wait_for(lambda: link.anc == want or link.anc != before,  # noqa: B023
+                      timeout=5)
         if link.anc == want:
             print(mode_name(link.anc))
             return
